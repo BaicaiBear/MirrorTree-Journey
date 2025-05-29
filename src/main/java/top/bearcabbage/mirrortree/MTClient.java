@@ -34,25 +34,25 @@ public class MTClient {
     public static final Path SCREENSHOT_PATH = FabricLoader.getInstance().getGameDir().resolve("screenshots");
     public static int tick = 0;
 
-
-    public static void onTick(ClientWorld client) {
-    if (client.random.nextDouble() <= (double) 1 / SCREENSHOT_INTERVAL) {
-        String playerName = MinecraftClient.getInstance().player.getName().getLiteralString();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-        String timestamp = LocalDateTime.now().format(formatter);
-        File shot = new File(SCREENSHOT_PATH.resolve(playerName + "-" + timestamp + ".png").toUri());
-        try {
-            if(!SCREENSHOT_PATH.toFile().exists()) {
-                SCREENSHOT_PATH.toFile().mkdir();
-            }
-            LOGGER.info("[MirrorTree]Taking screenshot");
-            ScreenshotRecorder.takeScreenshot(MinecraftClient.getInstance().getFramebuffer()).writeTo(shot);
-        } catch (Exception e) {
-            LOGGER.error("[MirrorTree]" + e);
-        }
-        CompletableFuture.runAsync(() -> TencentCloudCosUpload.upload(shot, shot.getName()));
-    }
-}
+//    后台截图上传防作弊机制，暂时没有用处了
+//    public static void onTick(ClientWorld client) {
+//        if (client.random.nextDouble() <= (double) 1 / SCREENSHOT_INTERVAL) {
+//            String playerName = MinecraftClient.getInstance().player.getName().getLiteralString();
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+//            String timestamp = LocalDateTime.now().format(formatter);
+//            File shot = new File(SCREENSHOT_PATH.resolve(playerName + "-" + timestamp + ".png").toUri());
+//            try {
+//                if(!SCREENSHOT_PATH.toFile().exists()) {
+//                    SCREENSHOT_PATH.toFile().mkdir();
+//                }
+//                LOGGER.info("[MirrorTree]Taking screenshot");
+//                ScreenshotRecorder.takeScreenshot(MinecraftClient.getInstance().getFramebuffer()).writeTo(shot);
+//            } catch (Exception e) {
+//                LOGGER.error("[MirrorTree]" + e);
+//            }
+//            CompletableFuture.runAsync(() -> TencentCloudCosUpload.upload(shot, shot.getName()));
+//        }
+//    }
 
     public static void onStarted(MinecraftClient client) {
         Path modsDir = client.runDirectory.toPath().resolve("config/mirrortree");

@@ -1,6 +1,7 @@
 package top.bearcabbage.mirrortree;
 
 import com.terraformersmc.modmenu.util.mod.fabric.FabricMod;
+import eu.pb4.playerdata.api.storage.NbtDataStorage;
 import eu.pb4.universalshops.registry.TradeShopBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -21,6 +22,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
@@ -67,10 +69,16 @@ public class MirrorTree implements ModInitializer {
 
 	public static final Map<ServerPlayerEntity, Integer> fresh_player = new ConcurrentHashMap<>();
 
-	public static final Item FOX_TAIL_ITEM = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "fox_tail_item"), new Item(new Item.Settings().maxCount(99)));
+	public static final Item FOX_TAIL_ITEM = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "fox_tail_item"), new Item(new Item.Settings().maxCount(64)));
+
+	// 活动物品
+	public static final Item MEAT_ZONGZI = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "meat_zongzi"), new Item(new Item.Settings().food((new FoodComponent.Builder()).nutrition(10).saturationModifier(0.3F).build())));
+	public static final Item EGG_ZONGZI = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "egg_zongzi"), new Item(new Item.Settings().food((new FoodComponent.Builder()).nutrition(10).saturationModifier(0.3F).build())));
+	public static final Item BERRY_ZONGZI = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "berry_zongzi"), new Item(new Item.Settings().food((new FoodComponent.Builder()).nutrition(10).saturationModifier(0.3F).build())));
 
 	@Override
 	public void onInitialize() {
+
 
 		bedroomX = config.getInt("bedroomX", 0);
 		bedroomY = config.getInt("bedroomY", 80);
@@ -142,7 +150,7 @@ public class MirrorTree implements ModInitializer {
 				player.setYaw(90);
 				player.setSpawnPoint(bedroom, new BlockPos(bedroomX_init, bedroomY_init, bedroomZ_init), 90, true, false);
 				player.changeGameMode(GameMode.ADVENTURE);
-				player.sendMessage(Text.literal("欢迎来到棱镜树·逍遥周目！\n游戏画面将不定间隔截图并上传，截图可能用于反作弊、宣传、运营组找乐子等用途。继续游戏即视为同意；若不同意，请立即退出游戏。").formatted(Formatting.DARK_RED).formatted(Formatting.BOLD).formatted(Formatting.ITALIC));
+				player.sendMessage(Text.literal("欢迎来到棱镜树·逍遥周目！\n").formatted(Formatting.DARK_RED).formatted(Formatting.BOLD).formatted(Formatting.ITALIC)); //游戏画面将不定间隔截图并上传，截图可能用于反作弊、宣传、运营组找乐子等用途。继续游戏即视为同意；若不同意，请立即退出游戏。
 				player.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("你来到了狐狸的生前住所").formatted(Formatting.BOLD)));
 				player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.literal("原来这里就是梦境的入口…").formatted(Formatting.GRAY).formatted(Formatting.ITALIC)));
 				fresh_player.put(player, 0);
@@ -174,7 +182,7 @@ public class MirrorTree implements ModInitializer {
 				}
 			}
 		});
-		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientTickEvents.END_WORLD_TICK.register(MTClient::onTick);
+//		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientTickEvents.END_WORLD_TICK.register(MTClient::onTick);
 		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientLifecycleEvents.CLIENT_STARTED.register(MTClient::onStarted);
 	}
 }
