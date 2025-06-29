@@ -1,24 +1,17 @@
 package top.bearcabbage.mirrortree;
 
-import com.terraformersmc.modmenu.util.mod.fabric.FabricMod;
-import eu.pb4.playerdata.api.storage.NbtDataStorage;
 import eu.pb4.universalshops.registry.TradeShopBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
@@ -45,14 +38,11 @@ import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.bearcabbage.lanterninstorm.LanternInStormAPI;
+import top.bearcabbage.mirrortree.screen.SelectionDreamScreen;
 import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
-
-import static top.bearcabbage.mirrortree.MTClient.*;
 
 public class MirrorTree implements ModInitializer {
 	public static final String MOD_ID = "mirrortree";
@@ -122,7 +112,8 @@ public class MirrorTree implements ModInitializer {
 				if (!world.isClient && !player.isCreative() && !(world.getBlockState(hitResult.getBlockPos()).getBlock() instanceof BedBlock || world.getBlockState(hitResult.getBlockPos()).getBlock() instanceof DoorBlock || world.getBlockState(hitResult.getBlockPos()).getBlock() instanceof TradeShopBlock || world.getBlockState(hitResult.getBlockPos()).getBlock() instanceof GrassBlock || world.getBlockState(hitResult.getBlockPos()).getBlock() instanceof LecternBlock || world.getBlockState(hitResult.getBlockPos()).getBlock() instanceof StairsBlock)) return ActionResult.FAIL;
 				if (world.getBlockState(hitResult.getBlockPos()).getBlock() instanceof BedBlock) {
 					if (world.isClient) return ActionResult.SUCCESS;
-					MTDream.queueDreamingTask(player.getServer().getOverworld(), (ServerPlayerEntity) player);
+					if (LanternInStormAPI.getRTPSpawn((ServerPlayerEntity) player)!=null) MTDream.queueDreamingTask(player.getServer().getOverworld(), (ServerPlayerEntity) player, null);
+					else ((ServerPlayerEntity) player).openHandledScreen(new SelectionDreamScreen());
 					return ActionResult.SUCCESS;
 				}
 			}

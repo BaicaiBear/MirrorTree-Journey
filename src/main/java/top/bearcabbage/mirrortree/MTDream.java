@@ -1,13 +1,14 @@
 package top.bearcabbage.mirrortree;
 
 import com.google.common.collect.Maps;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Position;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.GameMode;
 import top.bearcabbage.lanterninstorm.LanternInStormAPI;
 import top.bearcabbage.lanterninstorm.lantern.BeginningLanternEntity;
@@ -18,7 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static net.minecraft.state.property.Properties.WATERLOGGED;
 import static top.bearcabbage.mirrortree.MirrorTree.*;
 
 public class MTDream {
@@ -32,8 +32,8 @@ public class MTDream {
     private static final ExecutorService dreamExecutor = Executors.newSingleThreadExecutor();
     private static final ExecutorService redreamExecutor = Executors.newSingleThreadExecutor();
 
-    public static void queueDreamingTask(ServerWorld world, ServerPlayerEntity player) {
-        dreamQueue.add(() -> dreaming(world, player));
+    public static void queueDreamingTask(ServerWorld world, ServerPlayerEntity player, Position warppos) {
+        dreamQueue.add(() -> dreaming(world, player, warppos));
         processDreamQueue();
     }
 
@@ -74,17 +74,22 @@ public class MTDream {
     public static final Map<UUID, Collection<StatusEffectInstance>> dreamingEffects = Maps.newHashMap();
     public static final Map<UUID, ArrayList<Float>> dreamingHealthAndHunger = Maps.newHashMap();
 
-    public static void dreaming(ServerWorld world, ServerPlayerEntity player) {
+    public static void dreaming(ServerWorld world, ServerPlayerEntity player, Position warppos) {
         if(LanternInStormAPI.getRTPSpawn(player)==null) {
-            if (lastTime==0 || System.currentTimeMillis() - lastTime > 3000) {
-                lastTime = System.currentTimeMillis();
-                pos = getRandomPos(0, 0, MAX_RANGE);
+            if (warppos==null) {
+                if (lastTime == 0 || System.currentTimeMillis() - lastTime > 3000) {
+                    lastTime = System.currentTimeMillis();
+                    pos = getRandomPos(0, 0, MAX_RANGE);
+                } else {
+                    lastTime = System.currentTimeMillis();
+                    pos = getRandomPos(pos.getX(), pos.getZ(), DREAM_RANDOM_RANGE);
+                }
+                player.teleport(world, pos.toCenterPos().getX(), pos.toCenterPos().getY(), pos.toCenterPos().getZ(), 0, 0);
+                LanternInStormAPI.setRTPSpawn(player,pos, false);
             } else {
-                lastTime = System.currentTimeMillis();
-                pos = getRandomPos(pos.getX(), pos.getZ(), DREAM_RANDOM_RANGE);
+                player.teleport(world, warppos.getX(), warppos.getY(), warppos.getZ(), 0, 0);
+                LanternInStormAPI.setRTPSpawn(player, new BlockPos((int)warppos.getX(),(int)warppos.getY(),(int)warppos.getZ()), true);
             }
-            player.teleport(world, pos.toCenterPos().getX(), pos.toCenterPos().getY(), pos.toCenterPos().getZ(), 0,0);
-            LanternInStormAPI.setRTPSpawn(player, pos);
         } else {
             pos = LanternInStormAPI.getRTPSpawn(player);
             lastTime = System.currentTimeMillis();
