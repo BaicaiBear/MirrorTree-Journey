@@ -3,8 +3,11 @@ package top.bearcabbage.mirrortree;
 import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
+import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
@@ -89,6 +92,8 @@ public class MTDream {
             } else {
                 player.teleport(world, warppos.getX(), warppos.getY(), warppos.getZ(), 0, 0);
                 LanternInStormAPI.setRTPSpawn(player, new BlockPos((int)warppos.getX(),(int)warppos.getY(),(int)warppos.getZ()), true);
+                player.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("大鹏的梦").withColor(0x525288)));
+                player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.literal("这个「聚落」是你的起点").withColor(0xFFFFFF)));
             }
         } else {
             pos = LanternInStormAPI.getRTPSpawn(player);

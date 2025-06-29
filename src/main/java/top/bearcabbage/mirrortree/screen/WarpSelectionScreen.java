@@ -6,6 +6,7 @@ import me.alpestrine.c.reward.screen.button.ItemBuilder;
 import me.alpestrine.c.reward.screen.screens.AbstractACScreen;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import top.bearcabbage.mirrortree.MTDream;
 
 import java.util.List;
 
@@ -22,10 +23,7 @@ public class WarpSelectionScreen extends AbstractACScreen {
                 String warpName = warps.get(i);
                 setButton(i + 11, ItemBuilder.start(Items.LIGHT_BLUE_BANNER)
                         .name("聚落: " + warpName)
-                        .button(event -> {
-                            WarpStorage storage = ManagerLocator.getInstance().getWorldDataManager().getWarpStorage();
-                            storage.warpToWarp(event.player, warpName);
-                        }));
+                        .button(event -> MTDream.queueDreamingTask(event.player.getServer().getOverworld(), event.player, ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos())));
             }
         }
     }
