@@ -1,17 +1,21 @@
 package top.bearcabbage.mirrortree;
 
 import eu.pb4.universalshops.registry.TradeShopBlock;
+import me.alpestrine.c.reward.screen.screens.SelectionScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
@@ -32,6 +36,7 @@ import net.minecraft.text.Texts;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -43,6 +48,8 @@ import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
 import java.util.*;
 import java.util.concurrent.*;
+
+import static sereneseasons.api.SSItems.CALENDAR;
 
 public class MirrorTree implements ModInitializer {
 	public static final String MOD_ID = "mirrortree";
@@ -173,6 +180,16 @@ public class MirrorTree implements ModInitializer {
 				}
 			}
 		});
+
+		UseItemCallback.EVENT.register((player, world, hand) -> {
+			if (player instanceof ServerPlayerEntity serverPlayerEntity && player.getMainHandStack().isOf(CALENDAR)) {
+				serverPlayerEntity.openHandledScreen(new SelectionScreen());
+			}
+			return TypedActionResult.pass(player.getMainHandStack());
+		});
+
+
+
 //		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientTickEvents.END_WORLD_TICK.register(MTClient::onTick);
 		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientLifecycleEvents.CLIENT_STARTED.register(MTClient::onStarted);
 	}

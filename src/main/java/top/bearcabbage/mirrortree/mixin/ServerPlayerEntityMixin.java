@@ -2,6 +2,7 @@ package top.bearcabbage.mirrortree.mixin;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
@@ -15,7 +16,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import top.bearcabbage.annoyingeffects.AnnoyingEffects;
+
+import java.util.Objects;
 
 import static top.bearcabbage.mirrortree.MirrorTree.bedroom;
 
@@ -28,6 +33,10 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     @Shadow public abstract boolean dropSelectedItem(boolean entireStack);
 
+    @Shadow public abstract boolean isCreative();
+
+    @Shadow public abstract boolean isSpectator();
+
     public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(world, pos, yaw, gameProfile);
     }
@@ -37,6 +46,13 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
         if (this.getServer().getWorld(bedroom)!=null && this.getServerWorld()==this.getServer().getWorld(bedroom)) {
             this.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.literal("在狐狸家里不能丢东西哦")));
             cir.setReturnValue(null);
+        }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    public void tick(CallbackInfo ci) {
+        if (this.getServerWorld().getTime() % 10 == 0 && Objects.equals(this.getServerWorld().getRegistryKey().getValue().getNamespace(), "starry_skies") && !(this.isCreative() || this.isSpectator())) {
+            this.setStatusEffect(new StatusEffectInstance(AnnoyingEffects.CURSE_OF_VANISHING, 10), null);
         }
     }
 }

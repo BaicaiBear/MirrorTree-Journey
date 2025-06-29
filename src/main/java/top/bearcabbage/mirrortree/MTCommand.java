@@ -1,6 +1,7 @@
 package top.bearcabbage.mirrortree;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.command.ServerCommandSource;
@@ -9,9 +10,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.GameMode;
+import top.bearcabbage.lanterninstorm.LanternInStormAPI;
 
 import java.util.ArrayList;
 
+import static net.minecraft.server.command.CommandManager.argument;
 import static top.bearcabbage.mirrortree.MirrorTree.*;
 
 public class MTCommand {
@@ -52,6 +55,20 @@ public class MTCommand {
                     }
                     return 0;
                 })
+        );
+        dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>literal("mtwarp")
+                .then(argument("name", StringArgumentType.string())
+                    .requires(source -> source.hasPermissionLevel(2))
+                    .executes(context -> {
+                        ServerPlayerEntity player = context.getSource().getPlayer();
+                        LanternInStormAPI.setWarpSpawn(
+                                player.getServer().getOverworld(),
+                                player.getPos(),
+                                context.getArgument("name", String.class)
+                        );
+                        return 0;
+                    })
+                )
         );
 
 
