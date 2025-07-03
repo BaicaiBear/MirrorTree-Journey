@@ -20,6 +20,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.component.type.FoodComponent;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
@@ -188,9 +189,55 @@ public class MirrorTree implements ModInitializer {
 			return TypedActionResult.pass(player.getMainHandStack());
 		});
 
+		// 球球世界的鞘翅限速
+		ServerTickEvents.START_SERVER_TICK.register(
+				server -> {
+					for (PlayerEntity player : server.getPlayerManager().getPlayerList()) {
+						if (player.isFallFlying()) {
+							reduceElytraSpeed(player);
+						}}
+				}
+		);
+
 
 
 //		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientTickEvents.END_WORLD_TICK.register(MTClient::onTick);
 		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientLifecycleEvents.CLIENT_STARTED.register(MTClient::onStarted);
+	}
+
+	private void reduceElytraSpeed(PlayerEntity player)
+	{
+		if (!player.getWorld().getRegistryKey().getValue().getNamespace().equals("starry_skies")) return;
+		double elytra_speed_multiplier = 0.3;
+		Vec3d velocity = player.getVelocity();
+		double velocity_length = velocity.length();
+
+		float max_horizontal_speed = 1.66f;
+		double smoothing_factor = 0.3;
+		double dynamic_threshold = elytra_speed_multiplier * ((1-smoothing_factor) * max_horizontal_speed);
+
+		boolean angle_check = playerFlyingHorizontal(velocity);
+
+		if ((velocity_length > dynamic_threshold) && angle_check)
+		{
+			Vec3d target_velocity = velocity.normalize().multiply(elytra_speed_multiplier * velocity_length);
+			Vec3d velocity_diff = velocity.subtract(target_velocity);
+
+			Vec3d new_velocity = velocity.subtract(velocity_diff.multiply(smoothing_factor));
+
+			player.setVelocity(new_velocity);
+			player.velocityModified = true;
+			player.sendAbilitiesUpdate();
+		}
+	}
+
+	private static boolean playerFlyingHorizontal(Vec3d velocity)
+	{
+		double max_elevation_angle = Math.toRadians(50);
+		double min_elevation_angle = -Math.toRadians(50);
+		double vertical_velocity = velocity.y;
+		double horizontal_speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+		double elevation_angle = Math.atan2(vertical_velocity, horizontal_speed);
+		return (elevation_angle >= min_elevation_angle && elevation_angle <= max_elevation_angle);
 	}
 }
