@@ -1,5 +1,8 @@
 package top.bearcabbage.mirrortree;
 
+import com.fibermc.essentialcommands.EssentialCommands;
+import com.fibermc.essentialcommands.ManagerLocator;
+import com.fibermc.essentialcommands.types.MinecraftLocation;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -66,6 +69,7 @@ public class MTCommand {
                                 player.getPos(),
                                 context.getArgument("name", String.class)
                         );
+                        ManagerLocator.getInstance().getWorldDataManager().setWarp(context.getArgument("name", String.class), new MinecraftLocation(player.getServer().getOverworld().getRegistryKey(), player.getPos().getX(), player.getPos().getY(), player.getPos().getZ()),false);
                         return 0;
                     })
                 )

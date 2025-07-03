@@ -1,5 +1,6 @@
 package top.bearcabbage.mirrortree;
 
+import com.fibermc.essentialcommands.ManagerLocator;
 import eu.pb4.universalshops.registry.TradeShopBlock;
 import me.alpestrine.c.reward.screen.screens.SelectionScreen;
 import net.fabricmc.api.EnvType;
@@ -34,10 +35,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
