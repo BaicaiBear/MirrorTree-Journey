@@ -13,10 +13,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.event.player.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
@@ -196,6 +193,12 @@ public class MirrorTree implements ModInitializer {
 						}}
 				}
 		);
+
+		// 防止球球维度传送门被破坏
+		AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+			if (world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE)) return ActionResult.FAIL;
+			return ActionResult.PASS;
+		});
 
 
 
