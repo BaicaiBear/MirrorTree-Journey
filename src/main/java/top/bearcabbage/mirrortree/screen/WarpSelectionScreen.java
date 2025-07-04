@@ -21,8 +21,9 @@ public class WarpSelectionScreen extends AbstractACScreen {
             for (int i = 0; i < warps.size(); i++) {
                 if (ManagerLocator.getInstance().getWorldDataManager().getWarp(warps.get(i)).dim()!=serverPlayerEntity.getServer().getOverworld().getRegistryKey()) continue;
                 String warpName = warps.get(i);
+                if (!warpName.startsWith("聚落：")) continue;
                 setButton(i + 11, ItemBuilder.start(Items.LIGHT_BLUE_BANNER)
-                        .name("聚落: " + warpName)
+                        .name(warpName)
                         .button(event -> MTDream.queueDreamingTask(event.player.getServer().getOverworld(), event.player, ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos())));
             }
         }
