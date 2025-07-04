@@ -69,7 +69,7 @@ public class MTCommand {
                                 player.getPos(),
                                 context.getArgument("name", String.class)
                         );
-                        ManagerLocator.getInstance().getWorldDataManager().setWarp(context.getArgument("name", String.class), new MinecraftLocation(player.getServer().getOverworld().getRegistryKey(), player.getPos().getX(), player.getPos().getY(), player.getPos().getZ()),false);
+                        ManagerLocator.getInstance().getWorldDataManager().setWarp("聚落："+context.getArgument("name", String.class), new MinecraftLocation(player.getServer().getOverworld().getRegistryKey(), player.getPos().getX(), player.getPos().getY(), player.getPos().getZ()),false);
                         return 0;
                     })
                 )
