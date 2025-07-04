@@ -1,6 +1,6 @@
 package top.bearcabbage.mirrortree;
 
-import com.fibermc.essentialcommands.ManagerLocator;
+import com.glisco.numismaticoverhaul.currency.MoneyBagLootEntry;
 import eu.pb4.universalshops.registry.TradeShopBlock;
 import me.alpestrine.c.reward.screen.screens.SelectionScreen;
 import net.fabricmc.api.EnvType;
@@ -9,17 +9,18 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.player.*;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.condition.RandomChanceLootCondition;
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.registry.Registries;
@@ -45,6 +46,7 @@ import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static com.glisco.numismaticoverhaul.NumismaticOverhaul.CONFIG;
 import static sereneseasons.api.SSItems.CALENDAR;
 
 public class MirrorTree implements ModInitializer {
@@ -61,8 +63,10 @@ public class MirrorTree implements ModInitializer {
 	public static int bedroomZ_init;
 
 	public static final Map<ServerPlayerEntity, Integer> fresh_player = new ConcurrentHashMap<>();
-
 	public static final Item FOX_TAIL_ITEM = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "fox_tail_item"), new Item(new Item.Settings().maxCount(64)));
+
+	private static final Set<String> dungeonsLootTables = Set.of("dungeons_arise", "dungeons_arise_seven_seas");
+	private static final Set<String> structureLootTables = Set.of("farmersdelight", "betteroceanmonuments", "betterwitchhuts")
 
 	// 活动物品
 	public static final Item MEAT_ZONGZI = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "meat_zongzi"), new Item(new Item.Settings().food((new FoodComponent.Builder()).nutrition(10).saturationModifier(0.3F).build())));
@@ -198,6 +202,16 @@ public class MirrorTree implements ModInitializer {
 		AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
 			if (world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE)) return ActionResult.FAIL;
 			return ActionResult.PASS;
+		});
+
+		if (CONFIG.generateCurrencyInChests()) LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
+			if (dungeonsLootTables.contains(key.getValue().getNamespace())) {
+				tableBuilder.pool(LootPool.builder().with(MoneyBagLootEntry.builder(CONFIG.lootOptions.dungeonMinLoot(), CONFIG.lootOptions.dungeonMaxLoot()))
+						.conditionally(RandomChanceLootCondition.builder(0.45f)));
+			} else if (structureLootTables.contains(key.getValue().getNamespace())) {
+				tableBuilder.pool(LootPool.builder().with(MoneyBagLootEntry.builder(CONFIG.lootOptions.structureMinLoot(), CONFIG.lootOptions.structureMaxLoot()))
+						.conditionally(RandomChanceLootCondition.builder(0.45f)));
+			}
 		});
 
 
