@@ -66,7 +66,7 @@ public class MirrorTree implements ModInitializer {
 	public static final Item FOX_TAIL_ITEM = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "fox_tail_item"), new Item(new Item.Settings().maxCount(64)));
 
 	private static final Set<String> dungeonsLootTables = Set.of("dungeons_arise", "dungeons_arise_seven_seas");
-	private static final Set<String> structureLootTables = Set.of("farmersdelight", "betteroceanmonuments", "betterwitchhuts")
+	private static final Set<String> structureLootTables = Set.of("farmersdelight", "betteroceanmonuments", "betterwitchhuts");
 
 	// 活动物品
 	public static final Item MEAT_ZONGZI = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "meat_zongzi"), new Item(new Item.Settings().food((new FoodComponent.Builder()).nutrition(10).saturationModifier(0.3F).build())));

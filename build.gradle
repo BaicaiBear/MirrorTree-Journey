@@ -18,7 +18,7 @@ repositories {
 	// for more information about repositories.
 	// Player Data API
 	maven { url 'https://maven.nucleoid.xyz' }
-
+	maven { url 'https://maven.wispforest.io' }
 	maven { url 'https://mvnrepository.com'}
 
 	maven {
@@ -64,6 +64,10 @@ dependencies {
 	implementation include('com.fasterxml.jackson.core:jackson-core:2.14.2')
 
 	implementation include('net.coobird:thumbnailator:0.4.20')
+
+	modImplementation "io.wispforest:owo-lib:${project.owo_version}"
+	// only if you plan to use owo-config
+	annotationProcessor "io.wispforest:owo-lib:${project.owo_version}"
 }
 
 processResources {
