@@ -178,6 +178,11 @@ public class MirrorTree implements ModInitializer {
 						iterator.remove(); // 使用 Iterator 进行删除操作
 					}
 				}
+				if (world.getTime() % 20 == 0) {
+					for (ServerPlayerEntity player : world.getPlayers()) {
+						if (!player.isCreative() && !player.isSpectator()) player.changeGameMode(GameMode.ADVENTURE);
+					}
+				}
 			}
 		});
 
@@ -200,6 +205,9 @@ public class MirrorTree implements ModInitializer {
 
 		// 防止球球维度传送门被破坏
 		AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {
+				if (!player.isCreative()) return ActionResult.FAIL;
+			}
 			if (world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE)) return ActionResult.FAIL;
 			return ActionResult.PASS;
 		});
