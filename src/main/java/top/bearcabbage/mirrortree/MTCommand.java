@@ -75,6 +75,18 @@ public class MTCommand {
                 )
         );
 
+        dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>literal("mtwarp-delete")
+                .then(argument("name", StringArgumentType.string())
+                    .requires(source -> source.hasPermissionLevel(2))
+                    .executes(context -> {
+                        ServerPlayerEntity player = context.getSource().getPlayer();
+                        ManagerLocator.getInstance().getWorldDataManager().delWarp("聚落："+context.getArgument("name", String.class));
+                        player.sendMessage(Text.literal("请小心地手动kill掉灯笼实体。"));
+                        return 0;
+                    })
+                )
+        );
+
 
     }
 }
