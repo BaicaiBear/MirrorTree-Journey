@@ -178,10 +178,10 @@ public class MirrorTree implements ModInitializer {
 						iterator.remove(); // 使用 Iterator 进行删除操作
 					}
 				}
-				if (world.getTime() % 20 == 0) {
-					for (ServerPlayerEntity player : world.getPlayers()) {
-						if (!player.isCreative() && !player.isSpectator()) player.changeGameMode(GameMode.ADVENTURE);
-					}
+			}
+			if (world.getTime() % 20 == 0) {
+				for (ServerPlayerEntity player : world.getPlayers()) {
+					if (!player.isCreative() && !player.isSpectator() && player.getServerWorld().getRegistryKey().equals(bedroom)) player.changeGameMode(GameMode.ADVENTURE);
 				}
 			}
 		});
