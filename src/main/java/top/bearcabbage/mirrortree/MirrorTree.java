@@ -17,6 +17,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.component.type.FoodComponent;
+import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.loot.LootPool;
@@ -129,6 +130,7 @@ public class MirrorTree implements ModInitializer {
 
 		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
 			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {
+				if (entity instanceof VillagerEntity) return ActionResult.PASS;
 				if (!player.isCreative()) return ActionResult.FAIL;
 			}
 			return ActionResult.PASS;
