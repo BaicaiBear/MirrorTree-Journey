@@ -13,7 +13,7 @@ import java.util.List;
 public class WarpSelectionScreen extends AbstractACScreen {
     @Override
     protected void addButtons(ServerPlayerEntity serverPlayerEntity) {
-        setButton(26, ItemBuilder.start(Items.COAL).button(event -> event.player.openHandledScreen(new SelectionDreamScreen())));
+        setButton(26, ItemBuilder.start(Items.COAL).name("返回上一级").button(event -> event.player.openHandledScreen(new SelectionDreamScreen())));
         List<String> warps = ManagerLocator.getInstance().getWorldDataManager().getWarpNames();
         if (warps.isEmpty()) {
             setButton(11, ItemBuilder.start(Items.BARRIER).name("没有可用的聚落").button());
@@ -24,9 +24,9 @@ public class WarpSelectionScreen extends AbstractACScreen {
                 if (!warpName.startsWith("聚落：")) continue;
                 setButton(i + 11, ItemBuilder.start(Items.LIGHT_BLUE_BANNER)
                         .name(warpName)
-                        .tooltip("["+ ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getX() + ", " +
-                                ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getY() + ", " +
-                                ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getZ() + "]")
+                        .tooltip("["+ (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getX() + ", " +
+                                (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getY() + ", " +
+                                (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getZ() + "]")
                         .button(event -> MTDream.queueDreamingTask(event.player.getServer().getOverworld(), event.player, ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos())));
             }
         }

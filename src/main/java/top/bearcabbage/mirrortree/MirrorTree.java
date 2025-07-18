@@ -67,7 +67,7 @@ public class MirrorTree implements ModInitializer {
 	public static final Item FOX_TAIL_ITEM = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "fox_tail_item"), new Item(new Item.Settings().maxCount(64)));
 
 	private static final Set<String> dungeonsLootTables = Set.of("dungeons_arise", "dungeons_arise_seven_seas");
-	private static final Set<String> structureLootTables = Set.of("farmersdelight", "betteroceanmonuments", "betterwitchhuts");
+	private static final Set<String> structureLootTables = Set.of("betteroceanmonuments", "betterwitchhuts");
 
 	// 活动物品
 	public static final Item MEAT_ZONGZI = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "meat_zongzi"), new Item(new Item.Settings().food((new FoodComponent.Builder()).nutrition(10).saturationModifier(0.3F).build())));
@@ -210,7 +210,7 @@ public class MirrorTree implements ModInitializer {
 			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {
 				if (!player.isCreative()) return ActionResult.FAIL;
 			}
-			if (world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE)) return ActionResult.FAIL;
+			if (world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE) && !player.hasPermissionLevel(2)) return ActionResult.FAIL;
 			return ActionResult.PASS;
 		});
 
@@ -233,7 +233,7 @@ public class MirrorTree implements ModInitializer {
 	private void reduceElytraSpeed(PlayerEntity player)
 	{
 		if (!player.getWorld().getRegistryKey().getValue().getNamespace().equals("starry_skies")) return;
-		double elytra_speed_multiplier = 0.3;
+		double elytra_speed_multiplier = 0.6;
 		Vec3d velocity = player.getVelocity();
 		double velocity_length = velocity.length();
 
