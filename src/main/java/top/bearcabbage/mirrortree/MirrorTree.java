@@ -1,12 +1,23 @@
 package top.bearcabbage.mirrortree;
 
+import com.fibermc.essentialcommands.ManagerLocator;
+import com.fibermc.essentialcommands.types.MinecraftLocation;
 import com.glisco.numismaticoverhaul.currency.MoneyBagLootEntry;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.text2speech.Narrator;
 import eu.pb4.universalshops.registry.TradeShopBlock;
 import me.alpestrine.c.reward.screen.screens.SelectionScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -16,6 +27,7 @@ import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -28,7 +40,9 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
@@ -41,14 +55,21 @@ import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.bearcabbage.lanterninstorm.LanternInStormAPI;
+import top.bearcabbage.mirrortree.dream.MTDream;
+import top.bearcabbage.mirrortree.dream.MTDreamingPoint;
 import top.bearcabbage.mirrortree.screen.SelectionDreamScreen;
 import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 
 import static com.glisco.numismaticoverhaul.NumismaticOverhaul.CONFIG;
-import static sereneseasons.api.SSItems.CALENDAR;
+import static net.minecraft.server.command.CommandManager.argument;
 
 public class MirrorTree implements ModInitializer {
 	public static final String MOD_ID = "mirrortree";
@@ -188,13 +209,6 @@ public class MirrorTree implements ModInitializer {
 			}
 		});
 
-		UseItemCallback.EVENT.register((player, world, hand) -> {
-			if (player instanceof ServerPlayerEntity serverPlayerEntity && player.getMainHandStack().isOf(CALENDAR)) {
-				serverPlayerEntity.openHandledScreen(new SelectionScreen());
-			}
-			return TypedActionResult.pass(player.getMainHandStack());
-		});
-
 		// 球球世界的鞘翅限速
 		ServerTickEvents.START_SERVER_TICK.register(
 				server -> {
@@ -224,10 +238,6 @@ public class MirrorTree implements ModInitializer {
 			}
 		});
 
-
-
-//		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientTickEvents.END_WORLD_TICK.register(MTClient::onTick);
-		if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) ClientLifecycleEvents.CLIENT_STARTED.register(MTClient::onStarted);
 	}
 
 	private void reduceElytraSpeed(PlayerEntity player)
@@ -264,5 +274,153 @@ public class MirrorTree implements ModInitializer {
 		double horizontal_speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
 		double elevation_angle = Math.atan2(vertical_velocity, horizontal_speed);
 		return (elevation_angle >= min_elevation_angle && elevation_angle <= max_elevation_angle);
+	}
+
+	public static class MTConfig {
+		private final Path filePath;
+		private JsonObject jsonObject;
+		private final Gson gson;
+
+		public MTConfig(Path filePath) {
+			this.filePath = filePath;
+			this.gson = new GsonBuilder().setPrettyPrinting().create();
+			try {
+				if (Files.notExists(filePath.getParent())) {
+					Files.createDirectories(filePath.getParent());
+				}
+				if (Files.notExists(filePath)) {
+					Files.createFile(filePath);
+					try (FileWriter writer = new FileWriter(filePath.toFile())) {
+						writer.write("{}");
+					}
+				}
+
+			} catch (IOException e) {
+				Narrator.LOGGER.error(e.toString());
+			}
+			load();
+		}
+
+		public void load() {
+			try (FileReader reader = new FileReader(filePath.toFile())) {
+				this.jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+			} catch (IOException e) {
+				this.jsonObject = new JsonObject();
+			}
+		}
+
+		public void save() {
+			try (FileWriter writer = new FileWriter(filePath.toFile())) {
+				gson.toJson(jsonObject, writer);
+			} catch (IOException e) {
+				Narrator.LOGGER.error(e.toString());
+			}
+		}
+
+		public void set(String key, Object value) {
+			jsonObject.add(key, gson.toJsonTree(value));
+		}
+
+		public <T> T get(String key, Class<T> clazz) {
+			return gson.fromJson(jsonObject.get(key), clazz);
+		}
+
+		public <T> T getOrDefault(String key, T defaultValue) {
+			if (jsonObject.has(key)) {
+				return gson.fromJson(jsonObject.get(key), (Class<T>) defaultValue.getClass());
+			}
+			else {
+				set(key, defaultValue);
+				save();
+				return defaultValue;
+			}
+		}
+
+		public int getInt(String key, int defaultValue) {
+			if (jsonObject.has(key)) {
+				return jsonObject.get(key).getAsInt();
+			}
+			else {
+				set(key, defaultValue);
+				save();
+				return defaultValue;
+			}
+		}
+
+		public <T> T getAll(Class<T> clazz) {
+			return gson.fromJson(jsonObject, clazz);
+		}
+
+	}
+
+	public static class MTCommand {
+
+		public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
+			dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>literal("wakeup")
+					.executes(context -> {
+						ServerPlayerEntity player = context.getSource().getPlayer();
+						if (player==null) return 0;
+						if (!player.isSleeping()) return 0;
+						player.wakeUp();
+						double[] pos = {player.getBlockPos().getX(), player.getBlockPos().getY(), player.getBlockPos().getZ()};
+						MTDream.dreamingPos.put(player.getUuid(), pos);
+						ServerWorld bedroom = player.getServer().getWorld(MirrorTree.bedroom);
+						player.teleport(bedroom, bedroomX, bedroomY, bedroomZ, 0,0);
+						player.changeGameMode(GameMode.ADVENTURE);
+						MTDream.dreamingEffects.put(player.getUuid(), player.getStatusEffects());
+						ArrayList<Float> healthAndHunger = new ArrayList<>();
+						healthAndHunger.add(player.getHealth());
+						healthAndHunger.add((float) player.getHungerManager().getFoodLevel());
+						healthAndHunger.add(player.getHungerManager().getSaturationLevel());
+						healthAndHunger.add(player.getHungerManager().getExhaustion());
+						MTDream.dreamingHealthAndHunger.put(player.getUuid(), healthAndHunger);
+						player.clearStatusEffects();
+						player.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("你醒来了").formatted(Formatting.BOLD).formatted(Formatting.BLUE)));
+						return 0;
+					})
+			);
+			dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>literal("redream")
+					.requires(source -> source.hasPermissionLevel(2))
+					.executes(context -> {
+						ServerPlayerEntity player = context.getSource().getPlayer();
+						if (player==null) return 0;
+						try {
+							MTDream.queueRedreamingTask(player.getServer().getOverworld(), player);
+						} catch (Exception e) {
+							LOGGER.error(e.getMessage());
+						}
+						return 0;
+					})
+			);
+			dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>literal("mtwarp")
+					.then(argument("name", StringArgumentType.string())
+						.requires(source -> source.hasPermissionLevel(2))
+						.executes(context -> {
+							ServerPlayerEntity player = context.getSource().getPlayer();
+							LanternInStormAPI.setWarpSpawn(
+									player.getServer().getOverworld(),
+									player.getPos(),
+									context.getArgument("name", String.class)
+							);
+							ManagerLocator.getInstance().getWorldDataManager().setWarp("聚落："+context.getArgument("name", String.class), new MinecraftLocation(player.getServer().getOverworld().getRegistryKey(), player.getPos().getX(), player.getPos().getY(), player.getPos().getZ()),false);
+							return 0;
+						})
+					)
+			);
+
+			dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>literal("mtwarp-delete")
+					.then(argument("name", StringArgumentType.string())
+						.requires(source -> source.hasPermissionLevel(2))
+						.executes(context -> {
+							ServerPlayerEntity player = context.getSource().getPlayer();
+							ManagerLocator.getInstance().getWorldDataManager().delWarp("聚落："+context.getArgument("name", String.class));
+							player.sendMessage(Text.literal("请小心地手动kill掉灯笼实体。"));
+							return 0;
+						})
+					)
+			);
+
+
+		}
 	}
 }

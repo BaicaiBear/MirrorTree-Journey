@@ -4,7 +4,7 @@ import me.alpestrine.c.reward.screen.screens.AbstractACScreen;
 import me.alpestrine.c.reward.screen.button.ItemBuilder;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
-import top.bearcabbage.mirrortree.MTDream;
+import top.bearcabbage.mirrortree.dream.MTDream;
 
 public class SelectionDreamScreen extends AbstractACScreen {
 
