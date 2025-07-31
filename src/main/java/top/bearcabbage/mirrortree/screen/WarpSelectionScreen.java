@@ -19,17 +19,19 @@ public class WarpSelectionScreen extends AbstractACScreen {
         if (warps.isEmpty()) {
             setButton(11, ItemBuilder.start(Items.BARRIER).name("没有可用的聚落").button());
         } else {
-            for (int i = 0; i < warps.size(); i++) {
-                if (ManagerLocator.getInstance().getWorldDataManager().getWarp(warps.get(i)).dim()!=serverPlayerEntity.getServer().getOverworld().getRegistryKey()) continue;
-                String warpName = warps.get(i);
-                if (!warpName.startsWith("聚落：")) continue;
-                setButton(i + 11, ItemBuilder.start(BannerUtils.getRandomBanner())
-                        .name(warpName)
-                        .tooltip("["+ (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getX() + ", " +
-                                (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getY() + ", " +
-                                (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getZ() + "]")
-                        .button(event -> MTDream.queueDreamingTask(event.player.getServer().getOverworld(), event.player, ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos())));
+            int index = 0;
+            for (String warp : warps) {
+                if (ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).dim() != serverPlayerEntity.getServer().getOverworld().getRegistryKey())
+                    continue;
+                if (!warp.startsWith("聚落：")) continue;
+                setButton(index + 11, ItemBuilder.start(BannerUtils.getRandomBanner())
+                        .name(warp)
+                        .tooltip("[" + (int) ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getX() + ", " +
+                                (int) ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getY() + ", " +
+                                (int) ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getZ() + "]")
+                        .button(event -> MTDream.queueDreamingTask(event.player.getServer().getOverworld(), event.player, ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos())));
             }
+            index++;
         }
     }
 

@@ -58,6 +58,7 @@ import top.bearcabbage.lanterninstorm.LanternInStormAPI;
 import top.bearcabbage.mirrortree.dream.MTDream;
 import top.bearcabbage.mirrortree.dream.MTDreamingPoint;
 import top.bearcabbage.mirrortree.screen.SelectionDreamScreen;
+import top.bearcabbage.mirrortree.screen.WarpSelectionScreen;
 import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
 import java.io.FileReader;
@@ -135,6 +136,7 @@ public class MirrorTree implements ModInitializer {
 		EntitySleepEvents.START_SLEEPING.register((entity, sleepingLocation) -> {
 			entity.sendMessage(Texts.bracketed(Text.literal("=======[醒来走走]=======").formatted(Formatting.BOLD).styled((style) -> style.withColor(Formatting.LIGHT_PURPLE).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wakeup")).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("点击回到卧室（出生点大厅）维度"))))));
 		});
+
 
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {

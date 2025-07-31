@@ -12,30 +12,31 @@ import java.util.List;
 public class WarpTeleportScreen extends WarpSelectionScreen {
     @Override
     protected void addButtons(ServerPlayerEntity serverPlayerEntity) {
-        setButton(26, ItemBuilder.start(Items.COAL).name("返回上一级").button(event -> event.player.openHandledScreen(new SelectionDreamScreen())));
         List<String> warps = ManagerLocator.getInstance().getWorldDataManager().getWarpNames();
         if (warps.isEmpty()) {
             setButton(11, ItemBuilder.start(Items.BARRIER).name("没有可用的聚落").button());
         } else {
-            for (int i = 0; i < warps.size(); i++) {
-                if (ManagerLocator.getInstance().getWorldDataManager().getWarp(warps.get(i)).dim()!=serverPlayerEntity.getServer().getOverworld().getRegistryKey()) continue;
-                String warpName = warps.get(i);
-                if (!warpName.startsWith("聚落：")) continue;
-                setButton(i + 11, ItemBuilder.start(BannerUtils.getRandomBanner())
-                        .name(warpName)
-                        .tooltip("["+ (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getX() + ", " +
-                                (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getY() + ", " +
-                                (int)ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getZ() + "]")
+            int index = 0;
+            for (String warp : warps) {
+                if (ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).dim() != serverPlayerEntity.getServer().getOverworld().getRegistryKey())
+                    continue;
+                if (!warp.startsWith("聚落：")) continue;
+                setButton(index + 11, ItemBuilder.start(BannerUtils.getRandomBanner())
+                        .name(warp)
+                        .tooltip("[" + (int) ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getX() + ", " +
+                                (int) ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getY() + ", " +
+                                (int) ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getZ() + "]")
                         .button(event -> {
                             event.player.teleport(
                                     event.player.getServer().getOverworld(),
-                                    ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getX(),
-                                    ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getY(),
-                                    ManagerLocator.getInstance().getWorldDataManager().getWarp(warpName).pos().getZ(),
+                                    ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getX(),
+                                    ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getY(),
+                                    ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getZ(),
                                     event.player.getYaw(),
                                     event.player.getPitch()
                             );
                         }));
+                index++;
             }
         }
     }
