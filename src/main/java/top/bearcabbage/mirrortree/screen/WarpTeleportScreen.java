@@ -12,6 +12,7 @@ import java.util.List;
 public class WarpTeleportScreen extends WarpSelectionScreen {
     @Override
     protected void addButtons(ServerPlayerEntity serverPlayerEntity) {
+        setButton(26, ItemBuilder.start(Items.OAK_SIGN).name("设立新的聚落").tooltip("直接去联系小熊白菜就好了！（当然建议出生点附近先完成一些基础的建设，比如欢迎水池x）").button());
         List<String> warps = ManagerLocator.getInstance().getWorldDataManager().getWarpNames();
         if (warps.isEmpty()) {
             setButton(11, ItemBuilder.start(Items.BARRIER).name("没有可用的聚落").button());
