@@ -74,6 +74,13 @@ public class MirrorTree implements ModInitializer {
 	public static final Item EGG_ZONGZI = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "egg_zongzi"), new Item(new Item.Settings().food((new FoodComponent.Builder()).nutrition(10).saturationModifier(0.3F).build())));
 	public static final Item BERRY_ZONGZI = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "berry_zongzi"), new Item(new Item.Settings().food((new FoodComponent.Builder()).nutrition(10).saturationModifier(0.3F).build())));
 
+	// 奖券
+	public static final Item TICKET_1 = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "ticket_1"), new Item(new Item.Settings().maxCount(64)));
+	public static final Item TICKET_2 = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "ticket_2"), new Item(new Item.Settings().maxCount(64)));
+	public static final Item TICKET_3 = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "ticket_3"), new Item(new Item.Settings().maxCount(64)));
+	public static final Item TICKET_4 = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "ticket_4"), new Item(new Item.Settings().maxCount(64)));
+	public static final Item TICKET_5 = Registry.register(Registries.ITEM, Identifier.of(MOD_ID, "ticket_5"), new Item(new Item.Settings().maxCount(64)));
+
 	@Override
 	public void onInitialize() {
 
