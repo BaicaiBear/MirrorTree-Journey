@@ -59,7 +59,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     @Inject(method = "setSpawnPoint", at = @At("HEAD"), cancellable = true)
     public void setSpawnPoint(RegistryKey<World> dimension, BlockPos pos, float angle, boolean forced, boolean sendMessage, CallbackInfo ci){
-        if (dimension == brokenDream || dimension == farland) {
+        if (dimension == brokenDream || dimension == farland || dimension.getValue().getNamespace().equals("eternal_starlight") || dimension.getValue().getNamespace().equals("iceandfire")) {
             ci.cancel();
         }
     }
