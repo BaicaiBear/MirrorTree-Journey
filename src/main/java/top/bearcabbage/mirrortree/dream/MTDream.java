@@ -1,15 +1,19 @@
 package top.bearcabbage.mirrortree.dream;
 
 import com.google.common.collect.Maps;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Position;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.GameMode;
 import top.bearcabbage.lanterninstorm.LanternInStormAPI;
 import top.bearcabbage.lanterninstorm.lantern.BeginningLanternEntity;
@@ -20,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static net.minecraft.state.property.Properties.WATERLOGGED;
 import static top.bearcabbage.mirrortree.MirrorTree.*;
 
 public class MTDream {
@@ -32,6 +37,11 @@ public class MTDream {
     private static final LinkedBlockingQueue<Runnable> redreamQueue = new LinkedBlockingQueue<>();
     private static final ExecutorService dreamExecutor = Executors.newSingleThreadExecutor();
     private static final ExecutorService redreamExecutor = Executors.newSingleThreadExecutor();
+
+    // 新增远境任务队列
+    private static final LinkedBlockingQueue<Runnable> farlandQueue = new LinkedBlockingQueue<>();
+    private static final ExecutorService farlandExecutor = Executors.newSingleThreadExecutor();
+
 
     public static void queueDreamingTask(ServerWorld world, ServerPlayerEntity player, Position warppos) {
         dreamQueue.add(() -> dreaming(world, player, warppos));
@@ -68,6 +78,63 @@ public class MTDream {
             }
         });
     }
+
+    /** 进入远境任务 */
+    public static void queueFarlandTask(ServerPlayerEntity player, ServerWorld farlandWorld, int radius) {
+        farlandQueue.add(() -> {
+            Random random = farlandWorld.getRandom();
+            int maxAttempts = 3;
+            int height = 200;
+            boolean found = false;
+
+            for (int attempt = 0; attempt < maxAttempts; attempt++) {
+                int x = random.nextInt(radius * 2) - radius;
+                int z = random.nextInt(radius * 2) - radius;
+                BlockPos blockPos = new BlockPos(x, height, z);
+                if (!farlandWorld.getBlockState(blockPos).isAir()) continue;
+                while (farlandWorld.getBlockState(blockPos).isAir() && blockPos.getY() > 0) {
+                    blockPos = blockPos.down();
+                }
+                int y = blockPos.getY();
+                BlockState blockState = farlandWorld.getBlockState(new BlockPos(x, y, z));
+                boolean isSafe = !(blockState.isLiquid() || blockState.isIn(BlockTags.FIRE) ||
+                        blockState.isIn(BlockTags.LEAVES) || (blockState.contains(WATERLOGGED) && blockState.get(WATERLOGGED)));
+
+                if (isSafe) {
+                    found = true;
+                    player.getServer().execute(() -> {
+                        player.wakeUp();
+                        double[] pos = {player.getBlockPos().getX(), player.getBlockPos().getY()+1, player.getBlockPos().getZ()};
+                        dreamingPos.put(player.getUuid(), pos);
+                        player.teleport(farlandWorld, x + 0.5, y, z + 0.5, player.getYaw(), player.getPitch());
+                        player.networkHandler.sendPacket(new TitleS2CPacket(Text.literal("「远境」").formatted(Formatting.BOLD, Formatting.DARK_PURPLE)));
+                        player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.literal("深层梦境：未至之境").formatted(Formatting.DARK_GRAY)));
+                    });
+                    break;
+                }
+            }
+
+            if (!found) {
+                player.getServer().execute(() ->
+                        player.sendMessage(Text.literal("🌀你失眠了，辗转反侧……").formatted(Formatting.RED), false)
+                );
+            }
+        });
+        processFarlandQueue();
+    }
+
+    private static void processFarlandQueue() {
+        farlandExecutor.submit(() -> {
+            try {
+                while (!farlandQueue.isEmpty()) {
+                    farlandQueue.take().run();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+    }
+
 
     // 正常关服时写文件储存数据
     public static final Map<UUID, double[]> dreamingPos = Maps.newHashMap();

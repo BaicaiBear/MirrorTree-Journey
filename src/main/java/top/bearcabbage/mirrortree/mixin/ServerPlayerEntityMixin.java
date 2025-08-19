@@ -6,6 +6,7 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -22,7 +23,7 @@ import top.bearcabbage.annoyingeffects.AnnoyingEffects;
 
 import java.util.Objects;
 
-import static top.bearcabbage.mirrortree.MirrorTree.bedroom;
+import static top.bearcabbage.mirrortree.MirrorTree.*;
 
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity {
@@ -53,6 +54,13 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     public void tick(CallbackInfo ci) {
         if (this.getServerWorld().getTime() % 10 == 0 && Objects.equals(this.getServerWorld().getRegistryKey().getValue().getNamespace(), "starry_skies") && !(this.isCreative() || this.isSpectator())) {
             this.setStatusEffect(new StatusEffectInstance(AnnoyingEffects.CURSE_OF_VANISHING, 200), null);
+        }
+    }
+
+    @Inject(method = "setSpawnPoint", at = @At("HEAD"), cancellable = true)
+    public void setSpawnPoint(RegistryKey<World> dimension, BlockPos pos, float angle, boolean forced, boolean sendMessage, CallbackInfo ci){
+        if (dimension == brokenDream || dimension == farland) {
+            ci.cancel();
         }
     }
 }
