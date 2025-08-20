@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.bearcabbage.lanterninstorm.LanternInStormAPI;
 import top.bearcabbage.mirrortree.starryskies.TopTrapdoorDecorator;
+import top.bearcabbage.mirrortree.starryskies.TrialDungeonSphere;
 import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
 import java.util.*;
@@ -92,6 +93,7 @@ public class MirrorTree implements ModInitializer {
 		bedroomZ_init = config.getInt("bedroomZ_init", 0);
 
 		TopTrapdoorDecorator.init();
+		TrialDungeonSphere.init();
 
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {
