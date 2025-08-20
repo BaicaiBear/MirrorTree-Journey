@@ -54,6 +54,7 @@ import top.bearcabbage.lanterninstorm.LanternInStormAPI;
 import top.bearcabbage.mirrortree.dream.MTDream;
 import top.bearcabbage.mirrortree.dream.MTDreamingPoint;
 import top.bearcabbage.mirrortree.screen.SelectionDreamScreen;
+import top.bearcabbage.mirrortree.starryskies.TopTrapdoorDecorator;
 import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
 import java.io.FileReader;
@@ -121,6 +122,8 @@ public class MirrorTree implements ModInitializer {
 		brokenDreamY = config.getInt("brokenDreamY", 90);
 		brokenDreamZ = config.getInt("brokenDreamZ", 16);
 
+		// 注册球球装饰器
+		TopTrapdoorDecorator.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment)->MTCommand.registerCommands(dispatcher)); // 调用静态方法注册命令
 
@@ -259,6 +262,15 @@ public class MirrorTree implements ModInitializer {
 			return true;
 		});
 
+		AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+			if (world.getRegistryKey().equals(bedroom)) {
+				if (!player.isCreative()) return ActionResult.FAIL;
+			}
+			// 防止球球维度地牢球壳被破坏
+			if (world.getRegistryKey().equals(brokenDream) && world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE) && !player.isCreative()) return ActionResult.FAIL;
+			return ActionResult.PASS;
+		});
+
 //		// 球球世界的鞘翅限速 在「秋水」更新中被ban鞘翅取代
 //		ServerTickEvents.START_SERVER_TICK.register(
 //				server -> {
@@ -269,15 +281,7 @@ public class MirrorTree implements ModInitializer {
 //				}
 //		);
 
-//		// 防止球球维度传送门被破坏 在「秋水」更新中取消了传送门
-//		AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
-//			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {
-//				if (!player.isCreative()) return ActionResult.FAIL;
-//			}
-//			if (world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE) && !player.hasPermissionLevel(2)) return ActionResult.FAIL;
-//			return ActionResult.PASS;
-//		});
-//
+
 //		if (CONFIG.generateCurrencyInChests()) LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
 //			if (dungeonsLootTables.contains(key.getValue().getNamespace())) {
 //				tableBuilder.pool(LootPool.builder().with(MoneyBagLootEntry.builder(CONFIG.lootOptions.dungeonMinLoot(), CONFIG.lootOptions.dungeonMaxLoot()))
