@@ -13,18 +13,19 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 
+import static top.bearcabbage.mirrortree.MirrorTree.MOD_ID;
+
 public class TopTrapdoorDecorator extends SphereDecorator<SphereDecoratorConfig.DefaultSphereDecoratorConfig> {
 
     public static SphereDecorator<SphereDecoratorConfig.DefaultSphereDecoratorConfig> TOPTRAPDOOR = register("toptrapdoor", new TopTrapdoorDecorator(SphereDecoratorConfig.DefaultSphereDecoratorConfig.CODEC));
 
 
-    private static final BlockState TRAPDOOR = Blocks.IRON_TRAPDOOR.getDefaultState();
-    private static final BlockState STONE_BUTTON = Blocks.STONE_BUTTON.getDefaultState();
+    private static final BlockState GLASS = Blocks.GLASS.getDefaultState();
 
     public static void init() {}
 
     private static <C extends SphereDecoratorConfig, F extends SphereDecorator<C>> F register(String name, F feature) {
-        return Registry.register(StarryRegistries.SPHERE_DECORATOR, Identifier.of("mirrortree", name), feature);
+        return Registry.register(StarryRegistries.SPHERE_DECORATOR, Identifier.of(MOD_ID, name), feature);
     }
 
     public TopTrapdoorDecorator(Codec<SphereDecoratorConfig.DefaultSphereDecoratorConfig> codec) {
@@ -37,16 +38,13 @@ public class TopTrapdoorDecorator extends SphereDecorator<SphereDecoratorConfig.
         PlacedSphere<?> sphere = context.getSphere();
 
         BlockPos center = sphere.getPosition();
-        int radius = sphere.getRadius();
+        int radius = sphere.getRadius()/2*2;
 
         // 顶部中央表面方块
-        BlockPos topPos = center.up(radius);
-        BlockPos buttonPos = topPos.north();
+        BlockPos topCenter = center.up(radius);
 
         // 替换为铁活板门（如果空气或可替换方块）
-        world.setBlockState(topPos, TRAPDOOR, 3);
-        // 在顶部中央表面方块的北方放置石头按钮
-        world.setBlockState(buttonPos, STONE_BUTTON, 3);
+        world.setBlockState(topCenter, GLASS, 3);
 
         return true;
     }

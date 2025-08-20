@@ -55,6 +55,7 @@ import top.bearcabbage.mirrortree.dream.MTDream;
 import top.bearcabbage.mirrortree.dream.MTDreamingPoint;
 import top.bearcabbage.mirrortree.screen.SelectionDreamScreen;
 import top.bearcabbage.mirrortree.starryskies.TopTrapdoorDecorator;
+import top.bearcabbage.mirrortree.starryskies.TrialDungeonSphere;
 import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
 import java.io.FileReader;
@@ -124,6 +125,7 @@ public class MirrorTree implements ModInitializer {
 
 		// 注册球球装饰器
 		TopTrapdoorDecorator.init();
+		TrialDungeonSphere.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment)->MTCommand.registerCommands(dispatcher)); // 调用静态方法注册命令
 
@@ -267,7 +269,7 @@ public class MirrorTree implements ModInitializer {
 				if (!player.isCreative()) return ActionResult.FAIL;
 			}
 			// 防止球球维度地牢球壳被破坏
-			if (world.getRegistryKey().equals(brokenDream) && world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE) && !player.isCreative()) return ActionResult.FAIL;
+			if (world.getRegistryKey().getValue().getNamespace().equals("starry_skies") && world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE) && !player.isCreative()) return ActionResult.FAIL;
 			return ActionResult.PASS;
 		});
 
