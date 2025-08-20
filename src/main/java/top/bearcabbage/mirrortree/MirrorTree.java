@@ -41,6 +41,7 @@ import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.bearcabbage.lanterninstorm.LanternInStormAPI;
+import top.bearcabbage.mirrortree.starryskies.TopTrapdoorDecorator;
 import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
 import java.util.*;
@@ -90,6 +91,7 @@ public class MirrorTree implements ModInitializer {
 		bedroomY_init = config.getInt("bedroomY_init", 100);
 		bedroomZ_init = config.getInt("bedroomZ_init", 0);
 
+		TopTrapdoorDecorator.init();
 
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {
@@ -112,6 +114,15 @@ public class MirrorTree implements ModInitializer {
 			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {
 				if (!player.isCreative()) return ActionResult.FAIL;
 			}
+			return ActionResult.PASS;
+		});
+
+		AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+			if (world.getRegistryKey().equals(bedroom)) {
+				if (!player.isCreative()) return ActionResult.FAIL;
+			}
+			// 防止球球维度地牢球壳被破坏
+			if (world.getRegistryKey().getValue().getNamespace().equals("starry_skies") && world.getBlockState(pos).getBlock().equals(Blocks.REINFORCED_DEEPSLATE) && !player.isCreative()) return ActionResult.FAIL;
 			return ActionResult.PASS;
 		});
 
