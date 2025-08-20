@@ -1,54 +1,28 @@
 package top.bearcabbage.mirrortree;
 
-import com.glisco.numismaticoverhaul.currency.MoneyBagLootEntry;
-import eu.pb4.universalshops.registry.TradeShopBlock;
-import me.alpestrine.c.reward.screen.screens.SelectionScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.*;
-import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.*;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.condition.RandomChanceLootCondition;
-import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.stat.Stats;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
 import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.bearcabbage.lanterninstorm.LanternInStormAPI;
 import top.bearcabbage.mirrortree.starryskies.TopTrapdoorDecorator;
-import top.bearcabbage.mirrortree.starryskies.TrialDungeonSphere;
-import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
 import java.util.*;
 import java.util.concurrent.*;
-
-import static com.glisco.numismaticoverhaul.NumismaticOverhaul.CONFIG;
 
 public class MirrorTree implements ModInitializer {
 	public static final String MOD_ID = "mirrortree";
@@ -93,7 +67,6 @@ public class MirrorTree implements ModInitializer {
 		bedroomZ_init = config.getInt("bedroomZ_init", 0);
 
 		TopTrapdoorDecorator.init();
-		TrialDungeonSphere.init();
 
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if (world.getRegistryKey().getValue().equals(Identifier.of(MOD_ID,"bedroom"))) {
