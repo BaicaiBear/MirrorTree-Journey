@@ -55,7 +55,6 @@ import top.bearcabbage.mirrortree.dream.MTDream;
 import top.bearcabbage.mirrortree.dream.MTDreamingPoint;
 import top.bearcabbage.mirrortree.screen.SelectionDreamScreen;
 import top.bearcabbage.mirrortree.starryskies.TopTrapdoorDecorator;
-import top.bearcabbage.mirrortree.starryskies.TrialDungeonSphere;
 import xyz.nikitacartes.easyauth.utils.PlayerAuth;
 
 import java.io.FileReader;
@@ -125,7 +124,6 @@ public class MirrorTree implements ModInitializer {
 
 		// 注册球球装饰器
 		TopTrapdoorDecorator.init();
-		TrialDungeonSphere.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment)->MTCommand.registerCommands(dispatcher)); // 调用静态方法注册命令
 
