@@ -30,8 +30,9 @@ public class WarpSelectionScreen extends AbstractACScreen {
                                 (int) ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getY() + ", " +
                                 (int) ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos().getZ() + "]")
                         .button(event -> MTDream.queueDreamingTask(event.player.getServer().getOverworld(), event.player, ManagerLocator.getInstance().getWorldDataManager().getWarp(warp).pos())));
+                index++;
             }
-            index++;
+
         }
     }
 
