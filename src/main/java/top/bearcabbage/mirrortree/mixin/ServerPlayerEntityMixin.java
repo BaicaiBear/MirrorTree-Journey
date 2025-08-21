@@ -50,13 +50,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
         }
     }
 
-    @Inject(method = "tick", at = @At("TAIL"))
-    public void tick(CallbackInfo ci) {
-        if (this.getServerWorld().getTime() % 10 == 0 && Objects.equals(this.getServerWorld().getRegistryKey().getValue().getNamespace(), "starry_skies") && !(this.isCreative() || this.isSpectator())) {
-            this.setStatusEffect(new StatusEffectInstance(AnnoyingEffects.CURSE_OF_VANISHING, 200), null);
-        }
-    }
-
     @Inject(method = "setSpawnPoint", at = @At("HEAD"), cancellable = true)
     public void setSpawnPoint(RegistryKey<World> dimension, BlockPos pos, float angle, boolean forced, boolean sendMessage, CallbackInfo ci){
         if (dimension == brokenDream || dimension == farland || dimension.getValue().getNamespace().equals("eternal_starlight") || dimension.getValue().getNamespace().equals("iceandfire")) {
