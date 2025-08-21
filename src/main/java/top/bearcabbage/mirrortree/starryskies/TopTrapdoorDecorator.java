@@ -58,7 +58,7 @@ public class TopTrapdoorDecorator extends SphereDecorator<SphereDecoratorConfig.
         float innerRadius = radius + 2; // 内径
         int ringWidth = Math.max(1, Math.min(2, Math.round(radius * 0.1F))); // 自适应宽度 1-2 方块
         float outerRadius = innerRadius + ringWidth;
-        double verticalThickness = radius > 4 ? 1.5 : 0.5; // 半径>4时垂直方向加宽
+        double verticalThickness = radius/4.0; // 半径>4时垂直方向加宽
 
         BlockPos.Mutable mutablePos = new BlockPos.Mutable();
         Random random = context.getRandom();
