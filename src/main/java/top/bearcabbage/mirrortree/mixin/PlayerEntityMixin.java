@@ -27,7 +27,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     public void tick(CallbackInfo ci) {
         if (this.getWorld().getRegistryKey().getValue().getNamespace().equals("starry_skies")) {
             if (this.getVehicle() instanceof LivingEntity vehicle && (vehicle instanceof EnderDragonEntity || vehicle instanceof DragonEntity)) {
-                vehicle.remove(RemovalReason.UNLOADED_WITH_PLAYER);
+                this.stopRiding();
                 LivingEntity me = this;
                 if (me instanceof ServerPlayerEntity serverPlayer) {
                     serverPlayer.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.literal("「碎梦」中的你遗忘了如何飞行").formatted(Formatting.DARK_PURPLE)));
