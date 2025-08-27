@@ -10,6 +10,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.text2speech.Narrator;
+import dev.emi.trinkets.api.event.TrinketEquipCallback;
+import dev.emi.trinkets.api.event.TrinketUnequipCallback;
 import eu.pb4.universalshops.registry.TradeShopBlock;
 import net.fabricmc.api.ModInitializer;
 
@@ -21,6 +23,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.masik.mythiccharms.item.ModItems;
 import net.minecraft.block.*;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.passive.VillagerEntity;
@@ -260,6 +263,13 @@ public class MirrorTree implements ModInitializer {
 				}
 			}
 			return true;
+		});
+
+		// 球球世界佩戴失重护符时的提示
+		TrinketEquipCallback.EVENT.register((stack, slot, entity) -> {
+			if (entity.getWorld().getRegistryKey().getValue().getNamespace().equals("starry_skies") && (stack.getItem().equals(ModItems.UNBREAKABLE_CHARM_OF_WEIGHTLESS_FLOW) || stack.getItem().equals(ModItems.FRAGILE_CHARM_OF_WEIGHTLESS_FLOW))) {
+				if (entity instanceof ServerPlayerEntity serverPlayerEntity) serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.literal("「碎梦」中的你遗忘了如何飞行").formatted(Formatting.DARK_PURPLE)));
+			}
 		});
 
 		AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
