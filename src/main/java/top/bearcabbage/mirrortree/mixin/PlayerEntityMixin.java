@@ -1,6 +1,7 @@
 package top.bearcabbage.mirrortree.mixin;
 
-import com.iafenvoy.iceandfire.entity.EntityDragonBase;
+
+import net.adventurez.entity.DragonEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
@@ -21,7 +22,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     @Inject(method = "tick", at = @At("TAIL"))
     public void tick(CallbackInfo ci) {
         if (this.getWorld().getRegistryKey().getValue().getNamespace().equals("starry_skies")) {
-            if (this.getVehicle() instanceof LivingEntity vehicle && (vehicle instanceof EnderDragonEntity || vehicle instanceof EntityDragonBase)) {
+            if (this.getVehicle() instanceof LivingEntity vehicle && (vehicle instanceof EnderDragonEntity || vehicle instanceof DragonEntity)) {
                 vehicle.remove(RemovalReason.DISCARDED);
             }
         }
